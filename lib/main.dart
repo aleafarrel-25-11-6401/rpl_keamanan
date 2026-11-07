@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'config/app_config.dart';
+import 'config/dependency_injector.dart';
 import 'screens/home_screen.dart';
+import 'utils/logger.dart';
 
 /// Entry point aplikasi.
 ///
@@ -12,9 +14,15 @@ Future<void> main() async {
   await dotenv.load(fileName: ".env");
 // Periksa konfigurasi
   if (!AppConfig.isConfigured()) {
-    print('⚠️ Konfigurasi .env tidak lengkap. Periksa file .env Anda.');
+    Logger.warning('⚠️ Konfigurasi .env tidak lengkap. Periksa file .env Anda.');
+  } else {
+    Logger.info('Konfigurasi .env berhasil dimuat.');
   }
-  runApp(const MyApp());
+  runApp(
+    DependencyInjector(
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

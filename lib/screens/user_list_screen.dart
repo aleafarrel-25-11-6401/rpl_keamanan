@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import '../config/dependency_injector.dart';
 import '../models/user.dart';
 import '../repositories/user_repository.dart';
-import '../repositories/user_repository_impl.dart';
 import '../widgets/user_card.dart';
 
 /// Halaman untuk menampilkan daftar pengguna.
@@ -17,16 +17,18 @@ class UserListScreen extends StatefulWidget {
 }
 
 class _UserListScreenState extends State<UserListScreen> {
-  late final UserRepository _repository;
+  UserRepository? _repository;
   List<User> _users = [];
   bool _isLoading = true;
   String? _errorMessage;
 
   @override
-  void initState() {
-    super.initState();
-    _repository = widget.repository ?? UserRepositoryImpl();
-    _loadUsers();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_repository == null) {
+      _repository = widget.repository ?? DependencyInjector.of(context).userRepository;
+      _loadUsers();
+    }
   }
 
   Future<void> _loadUsers() async {
@@ -35,7 +37,7 @@ class _UserListScreenState extends State<UserListScreen> {
       _errorMessage = null;
     });
     try {
-      final users = await _repository.getUsers();
+      final users = await _repository!.getUsers();
       setState(() {
         _users = users;
         _isLoading = false;
